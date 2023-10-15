@@ -6,8 +6,13 @@ on: [pull_request, workflow_dispatch]
 jobs:
   job1:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - run: |
           echo "Workflow triggered in branch '${{ github.ref }}'."
           echo "Workflow triggered by event '${{ github.event_name }}'."
           echo "Workflow triggered by actor '${{ github.actor }}''."
+      - uses: actions/checkout@v4.1.0
+      - uses: devops-actions/actionlint@v0.1.2
