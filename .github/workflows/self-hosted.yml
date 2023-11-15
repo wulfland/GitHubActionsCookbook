@@ -1,4 +1,4 @@
- name: Self-Hosted
+name: Self-Hosted
 
 on: [workflow_dispatch]
 
@@ -14,5 +14,3 @@ jobs:
           echo "Runner Name: '${{ runner.name }}'"
           echo "Runner OS: ${{ runner.os }}"
           echo "Runner ARCH: ${{ runner.arch }}"
-          
-        
