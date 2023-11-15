@@ -1,4 +1,4 @@
-name: Self-Hosted
+ name: Self-Hosted
 
 on: [workflow_dispatch]
 
@@ -9,7 +9,8 @@ jobs:
       - name: Output environment
         shell: bash
         run: |-
-          uname -a
+          echo "Kernel: $(uname -S) $(uname -r)"
+          echo "Machine: $(uname -m) $(uname -r)"
           echo "Runner Name: '${{ runner.name }}'"
           echo "Runner OS: ${{ runner.os }}"
           echo "Runner ARCH: ${{ runner.arch }}"
