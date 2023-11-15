@@ -9,8 +9,8 @@ jobs:
       - name: Output environment
         shell: bash
         run: |-
-          echo "Kernel: $(uname -S) $(uname -r)"
-          echo "Machine: $(uname -m) $(uname -r)"
+          echo "Kernel: $(uname -s) - $(uname -r)"
+          echo "Machine: $(uname -m) - $(uname -r)"
           echo "Runner Name: '${{ runner.name }}'"
           echo "Runner OS: ${{ runner.os }}"
           echo "Runner ARCH: ${{ runner.arch }}"
