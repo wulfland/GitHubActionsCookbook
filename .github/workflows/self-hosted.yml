@@ -10,7 +10,7 @@ jobs:
         shell: bash
         run: |-
           echo "Kernel: $(uname -s) - $(uname -r)"
-          echo "Machine: $(uname -m) - $(uname -r)"
+          echo "Machine: $(uname -m) - $(uname -o)"
           echo "Runner Name: '${{ runner.name }}'"
           echo "Runner OS: ${{ runner.os }}"
           echo "Runner ARCH: ${{ runner.arch }}"
