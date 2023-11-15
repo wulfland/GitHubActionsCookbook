@@ -1,0 +1,17 @@
+name: Self-Hosted
+
+on: [workflow_dispatch]
+
+jobs:
+  main:
+    runs-on: self-hosted
+    steps:
+      - name: Output environment
+        shell: bash
+        run: |-
+          uname -a
+          echo "Runner Name: '${{ runner.name }}'"
+          echo "Runner OS: ${{ runner.os }}"
+          echo "Runner ARCH: ${{ runner.arch }}"
+          
+        
