@@ -1,0 +1,21 @@
+{
+  "name": "auto-scale",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "server": "node app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "octokit": "^3.1.2"
+  },
+  "devDependencies": {
+    "smee-client": "^2.0.0"
+  }
+}
