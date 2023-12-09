@@ -1,0 +1,20 @@
+# Issue ops
+name: issue-ops
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+    issue-ops:
+        runs-on: ubuntu-latest
+        permissions:
+            issues: write
+            contents: read
+        steps:
+        - uses: actions/checkout@v4.1.1
+        - run: |
+            echo "Requesting repository ${{ github.event.issue.title }}..."
+            gh issue comment ${{ github.event.issue.number }} -b "Request: ${{ github.event.issue.title }}" 
+        env:
+          GH_TOKEN: ${{ github.token }}
