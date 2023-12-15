@@ -24,3 +24,6 @@ body:
       options:
         - ACDC
         - PCKNK
+      default: 0
+    validations:
+      required: true
