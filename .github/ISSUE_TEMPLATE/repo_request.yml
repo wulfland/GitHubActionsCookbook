@@ -1,0 +1,26 @@
+name: '🗒️ Repository Request' 
+description: 'Request a new repository'
+title: '👤 Repository Request: '
+labels: 
+  - 'repo-request'
+projects: 'wulfland/19'
+assignees: 
+  - wulfland
+body:
+  - type: input
+    id: name
+    attributes:
+      label: 'Name'
+      description: 'Name of the repository in lower-case and kebab casing.'
+      placeholder: 'your-name-kebab'
+    validations:
+      required: true
+  - type: dropdown
+    id: department
+    attributes:
+      label: 'Department'
+      description: 'Pick your department. It will be used as a prefix for the repository name.'
+      multiple: false
+    options:
+      - ACDC
+      - PCKNK
