@@ -21,6 +21,6 @@ body:
       label: 'Department'
       description: 'Pick your department. It will be used as a prefix for the repository name.'
       multiple: false
-    options:
-      - ACDC
-      - PCKNK
+      options:
+        - ACDC
+        - PCKNK
