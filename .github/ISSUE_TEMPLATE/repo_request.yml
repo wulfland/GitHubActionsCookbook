@@ -1,8 +1,9 @@
 name: '🗒️ Repository Request' 
-description: 'Request a new repository'
-title: '👤 Repository Request: '
+description: 'Request a new repository.'
+title: '🗒️ Repository Request: '
 labels: 
   - 'repo-request'
+  - 'issue-ops'
 projects: 'wulfland/19'
 assignees: 
   - wulfland
@@ -22,8 +23,8 @@ body:
       description: 'Pick your department. It will be used as a prefix for the repository name.'
       multiple: false
       options:
-        - ACDC
-        - PCKNK
+        - dep1
+        - dep2
       default: 0
     validations:
       required: true
