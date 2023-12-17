@@ -7,6 +7,7 @@ on:
 
 jobs:
     issue-ops:
+        if: ${{ github.event.label.name == 'repo-request' }}
         runs-on: ubuntu-latest
         permissions:
             issues: write
