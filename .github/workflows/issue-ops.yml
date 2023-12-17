@@ -18,13 +18,38 @@ jobs:
 
         - uses: actions/checkout@v4.1.1
         - run: |
-
             repo_name=$(echo '${{ steps.parse.outputs.data }}' | jq -r '.name.text')
             repo_dept=$(echo '${{ steps.parse.outputs.data }}' | jq -r '.department.text')
+            repo_full_name=$repo_dept-$repo_name
 
-            echo "Name $repo_name"
-            echo "Dept $repo_dept"
+            message="Requested repository '$repo_full_name' will be sent for approval."
+            exitcode=0
 
-            # gh issue comment ${{ github.event.issue.number }} -b "Request: ${{ github.event.issue.title }}" 
+            # shall not be empty
+            if [ -z $repo_full_name ]; then
+                message="Repository name is empty.";
+                exitcode=1;
+            fi;                  
+            
+            # shall be alphanumeric and minus only
+            if [[ "$repo_full_name" =~ [^\-a-zA-Z0-9] ]]; then 
+                message="Repository name shall be alphanumeric and minus only.";
+                exitcode=1;
+            fi;
+                        
+            # shall not start with minus
+            if [[ "$repo_full_name" == -* ]]; then
+                message="Repository name shall not start with minus.";
+                exitcode=1;
+            fi;
+
+            # shall not end with minus
+            if [[ "$repo_full_name" == *- ]]; then
+                message="Repository name shall not end with minus.";
+                exitcode=1;
+            fi;
+
+            gh issue comment ${{ github.event.issue.number }} -b "$message"
+            exit $exitcode
           env:
             GH_TOKEN: ${{ github.token }}
