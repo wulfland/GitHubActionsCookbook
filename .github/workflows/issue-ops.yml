@@ -3,7 +3,7 @@ name: issue-ops
 
 on:
   issues:
-    types: [opened, edited]
+    types: [labeled]
 
 jobs:
     issue-ops:
@@ -12,9 +12,13 @@ jobs:
             issues: write
             contents: read
         steps:
+        - name: Issue Forms Body Parser
+          id: parse
+          uses: zentered/issue-forms-body-parser@v2.0.0
+        - run: echo ${{ toJSON(steps.parse.outputs.data) }}
         - uses: actions/checkout@v4.1.1
         - run: |
             echo "Requesting repository ${{ github.event.issue.title }}..."
             gh issue comment ${{ github.event.issue.number }} -b "Request: ${{ github.event.issue.title }}" 
-        env:
-          GH_TOKEN: ${{ github.token }}
+          env:
+            GH_TOKEN: ${{ github.token }}
