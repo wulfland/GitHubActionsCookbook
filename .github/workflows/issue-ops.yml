@@ -15,10 +15,16 @@ jobs:
         - name: Issue Forms Body Parser
           id: parse
           uses: zentered/issue-forms-body-parser@v2.0.0
-        - run: echo ${{ toJSON(steps.parse.outputs.data) }}
+
         - uses: actions/checkout@v4.1.1
         - run: |
-            echo "Requesting repository ${{ github.event.issue.title }}..."
-            gh issue comment ${{ github.event.issue.number }} -b "Request: ${{ github.event.issue.title }}" 
+
+            repo_name=$(echo '${{ steps.parse.outputs.data }}' | jq -r '.name.text')
+            repo_dept=$(echo '${{ steps.parse.outputs.data }}' | jq -r '.department.text')
+
+            echo "Name $repo_name"
+            echo "Dept $repo_dept"
+
+            # gh issue comment ${{ github.event.issue.number }} -b "Request: ${{ github.event.issue.title }}" 
           env:
             GH_TOKEN: ${{ github.token }}
