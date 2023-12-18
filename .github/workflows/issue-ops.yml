@@ -19,9 +19,11 @@ jobs:
           id: parse
           uses: zentered/issue-forms-body-parser@v2.0.0
 
-        - uses: actions/checkout@v4.1.1
-
-        - run: |
+        - name: Repository Request Validation
+          id: repo-request 
+          env:
+            GH_TOKEN: ${{ github.token }}
+          run: |
             repo_name=$(echo '${{ steps.parse.outputs.data }}' | jq -r '.name.text')
             repo_dept=$(echo '${{ steps.parse.outputs.data }}' | jq -r '.department.text')
             repo_full_name=$repo_dept-$repo_name
@@ -61,11 +63,9 @@ jobs:
                 message=$message" Please fix the issue and try again by applying the label 'repo-request' again to the issue.";
             fi;
 
-            gh issue comment ${{ github.event.issue.number }} -b "$mention $message"
+            gh issue comment ${{ github.event.issue.number }} -b "$mention $message" --repo ${{ github.event.repository.full_name }}
             exit $exitcode
-          id: repo-request 
-          env:
-            GH_TOKEN: ${{ github.token }}
+          
 
     create-repo:
         needs: issue-ops
@@ -98,16 +98,18 @@ jobs:
                   echo "repo_url=$REPO_URL" >> "$GITHUB_OUTPUT"
                   echo "Repositeory '$REPO_NAME' has been successully created: $REPO_URL"
 
-                  gh issue comment $ISSUE_NUMBER -b "@$USER: Repository '$REPO_OWNER/$REPO_NAME' has been created successfully: $REPO_URL"
-            
-            - name: Checkout repository
-              uses: actions/checkout@v4.1.1
-              if: ${{ failure() }}
+            - name: Notify User
+              if: ${{ success() }}
+              env: 
+                  GH_TOKEN: ${{ github.token }}
+                  REPO_URL: ${{ steps.create-repo.outputs.repo_url }}
+              run: |
+                  gh issue comment $ISSUE_NUMBER -b "@$USER: Repository '$REPO_OWNER/$REPO_NAME' has been created successfully: $REPO_URL" --repo ${{ github.event.repository.full_name }}
 
             - name: Handle Exception
               if: ${{ failure() }}
               env: 
                 GH_TOKEN: ${{ github.token }}
               run: |
-                  gh issue comment $ISSUE_NUMBER -b "@$USER: Repository '$REPO_OWNER/$REPO_NAME' creation failed. Please contact the administrator."
+                  gh issue comment $ISSUE_NUMBER -b "@$USER: Repository '$REPO_OWNER/$REPO_NAME' creation failed. Please contact the administrator." --repo ${{ github.event.repository.full_name }}
                      
