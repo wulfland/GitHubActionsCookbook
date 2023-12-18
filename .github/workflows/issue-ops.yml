@@ -12,12 +12,15 @@ jobs:
         permissions:
             issues: write
             contents: read
+        outputs:
+            REPO_NAME: ${{ steps.repo-request.outputs.REPO_NAME }}
         steps:
         - name: Issue Forms Body Parser
           id: parse
           uses: zentered/issue-forms-body-parser@v2.0.0
 
         - uses: actions/checkout@v4.1.1
+        
         - run: |
             repo_name=$(echo '${{ steps.parse.outputs.data }}' | jq -r '.name.text')
             repo_dept=$(echo '${{ steps.parse.outputs.data }}' | jq -r '.department.text')
@@ -60,5 +63,32 @@ jobs:
 
             gh issue comment ${{ github.event.issue.number }} -b "$mention $message"
             exit $exitcode
+          id: repo-request 
           env:
             GH_TOKEN: ${{ github.token }}
+
+    create-repo:
+        needs: issue-ops
+        runs-on: ubuntu-latest
+        environment: repo-creation
+        permissions: {}
+        steps:
+            - name: Create app token
+              uses: actions/create-github-app-token@v1.6.2
+              id: get-workflow-token
+              with:
+                app-id: ${{ vars.APP_ID }}
+                private-key: ${{ secrets.PRIVATE_KEY }}
+                owner: ${{ github.repository_owner }}
+            - name: Create repository
+              env: 
+                GH_TOKEN: ${{ steps.get-workflow-token.outputs.token }}
+                REPO_OWNER: ${{ github.repository_owner }}
+                REPO_NAME: ${{ needs.issue-ops.outputs.REPO_NAME }}
+                User: ${{ github.event.issue.user.login }}
+                ISSUE_NUMBER: ${{ github.event.issue.number }}
+              run: |
+                REPO_URL=$(gh repo create $REPO_OWNER/$REPO_NAME --private --clone)
+                echo "repo_url=$REPO_URL" >> "$GITHUB_OUTPUT"
+                echo "Repositeory '$REPO_NAME' has been created: $REPO_URL"
+                gh issue comment ${{ github.event.issue.number }} -b "@$user: Repository '$REPO_NAME' has been created: $REPO_URL"
