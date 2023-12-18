@@ -20,7 +20,7 @@ jobs:
           uses: zentered/issue-forms-body-parser@v2.0.0
 
         - uses: actions/checkout@v4.1.1
-        
+
         - run: |
             repo_name=$(echo '${{ steps.parse.outputs.data }}' | jq -r '.name.text')
             repo_dept=$(echo '${{ steps.parse.outputs.data }}' | jq -r '.department.text')
@@ -71,7 +71,14 @@ jobs:
         needs: issue-ops
         runs-on: ubuntu-latest
         environment: repo-creation
-        permissions: {}
+        permissions:
+            issues: write
+            contents: read
+        env: 
+            REPO_OWNER: ${{ vars.ORGANIZATION }}
+            REPO_NAME: ${{ needs.issue-ops.outputs.REPO_NAME }}
+            User: ${{ github.event.issue.user.login }}
+            ISSUE_NUMBER: ${{ github.event.issue.number }}
         steps:
             - name: Create app token
               uses: actions/create-github-app-token@v1.6.2
@@ -79,16 +86,28 @@ jobs:
               with:
                 app-id: ${{ vars.APP_ID }}
                 private-key: ${{ secrets.PRIVATE_KEY }}
-                owner: ${{ github.repository_owner }}
+                owner: ${{ vars.ORGANIZATION }}
+
             - name: Create repository
+              id: create-repo
               env: 
                 GH_TOKEN: ${{ steps.get-workflow-token.outputs.token }}
-                REPO_OWNER: ${{ github.repository_owner }}
-                REPO_NAME: ${{ needs.issue-ops.outputs.REPO_NAME }}
-                User: ${{ github.event.issue.user.login }}
-                ISSUE_NUMBER: ${{ github.event.issue.number }}
               run: |
-                REPO_URL=$(gh repo create $REPO_OWNER/$REPO_NAME --private --clone)
-                echo "repo_url=$REPO_URL" >> "$GITHUB_OUTPUT"
-                echo "Repositeory '$REPO_NAME' has been created: $REPO_URL"
-                gh issue comment ${{ github.event.issue.number }} -b "@$user: Repository '$REPO_NAME' has been created: $REPO_URL"
+                  REPO_URL=$(gh repo create $REPO_OWNER/$REPO_NAME --private --clone)
+                  
+                  echo "repo_url=$REPO_URL" >> "$GITHUB_OUTPUT"
+                  echo "Repositeory '$REPO_NAME' has been successully created: $REPO_URL"
+
+                  gh issue comment $ISSUE_NUMBER -b "@$USER: Repository '$REPO_OWNER/$REPO_NAME' has been created successfully: $REPO_URL"
+            
+            - name: Checkout repository
+              uses: actions/checkout@v4.1.1
+              if: ${{ failure() }}
+
+            - name: Handle Exception
+              if: ${{ failure() }}
+              env: 
+                GH_TOKEN: ${{ github.token }}
+              run: |
+                  gh issue comment $ISSUE_NUMBER -b "@$USER: Repository '$REPO_OWNER/$REPO_NAME' creation failed. Please contact the administrator."
+                     
