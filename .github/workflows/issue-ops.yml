@@ -23,6 +23,9 @@ jobs:
             repo_dept=$(echo '${{ steps.parse.outputs.data }}' | jq -r '.department.text')
             repo_full_name=$repo_dept-$repo_name
 
+            echo "REPO_NAME=$repo_full_name" >> "$GITHUB_OUTPUT"
+
+            mention="@${{ github.event.issue.user.login }}: "
             message="Requested repository '$repo_full_name' will be sent for approval."
             exitcode=0
 
@@ -55,7 +58,7 @@ jobs:
                 message=$message" Please fix the issue and try again by applying the label 'repo-request' again to the issue.";
             fi;
 
-            gh issue comment ${{ github.event.issue.number }} -b "$message"
+            gh issue comment ${{ github.event.issue.number }} -b "$mention $message"
             exit $exitcode
           env:
             GH_TOKEN: ${{ github.token }}
