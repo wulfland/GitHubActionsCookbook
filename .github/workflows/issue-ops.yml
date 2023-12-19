@@ -111,11 +111,15 @@ jobs:
               env: 
                   GH_TOKEN: ${{ secrets.PROJECT_TOKEN }}
                   REPO_URL: ${{ steps.create-repo.outputs.repo_url }}
+                  PROJECTNUMBER: ${{ vars.PROJECT_ID }}
+                  PROJECTOWNER: ${{ vars.PROJECT_OWNER}}
               run: |
-                  gh project item-edit --id $ISSUE_NUMBER --field-id ${{ vars.RPOJECT_STATUS_FIELD_ID }} --single-select-option-id ${{ vars.PROJECT_REPO_CREATED_OPTION_ID }} --project-id ${{ vars.PROJECT_ID }}
-                  gh project item-edit --id $ISSUE_NUMBER --field-id ${{ vars.PROJECT_URL_FIELD_ID }} --text $REPO_URL --project-id ${{ vars.PROJECT_ID }}
-                  gh project item-edit --id $ISSUE_NUMBER --field-id ${{ vars.PROJECT_OWNER_FIELD_ID }} --text $User --project-id ${{ vars.PROJECT_ID }}
-                  gh project item-edit --id $ISSUE_NUMBER --field-id ${{ vars.PROJECT_CREATED_FIELD_ID }} --date $(date +%Y-%m-%d) --project-id ${{ vars.PROJECT_ID }}
+                  project_id=$(gh project list --owner "$PROJECTOWNER" --format json | jq -r '.projects[] | select(.number=='$PROJECTNUMBER') | .id')
+                  issue_id=$(gh project item-list $PROJECTNUMBER --owner "$PROJECTOWNER" --format json | jq -r '.items[] | select(.content.number=='$ISSUE_NUMBER') | .id') 
+                  gh project item-edit --id $issue_id --field-id ${{ vars.RPOJECT_STATUS_FIELD_ID }} --single-select-option-id ${{ vars.PROJECT_REPO_CREATED_OPTION_ID }} --project-id $project_id
+                  gh project item-edit --id $issue_id --field-id ${{ vars.PROJECT_URL_FIELD_ID }} --text $REPO_URL --project-id $project_id
+                  gh project item-edit --id $issue_id --field-id ${{ vars.PROJECT_OWNER_FIELD_ID }} --text $User --project-id $project_id
+                  gh project item-edit --id $issue_id --field-id ${{ vars.PROJECT_CREATED_FIELD_ID }} --date $(date +%Y-%m-%d) --project-id $project_id
 
             - name: Handle Exception
               if: ${{ failure() }}
