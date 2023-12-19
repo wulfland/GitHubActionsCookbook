@@ -112,7 +112,7 @@ jobs:
                   GH_TOKEN: ${{ secrets.PROJECT_TOKEN }}
                   REPO_URL: ${{ steps.create-repo.outputs.repo_url }}
               run: |
-                  gh project item-edit --id $ISSUE_NUMBER --field-id ${{ vars.RPOJECT_STATUS_FIELD_ID }} --single-select-option-id 1 --project-id ${{ vars.PROJECT_ID }}
+                  gh project item-edit --id $ISSUE_NUMBER --field-id ${{ vars.RPOJECT_STATUS_FIELD_ID }} --single-select-option-id ${{ vars.PROJECT_REPO_CREATED_OPTION_ID }} --project-id ${{ vars.PROJECT_ID }}
                   gh project item-edit --id $ISSUE_NUMBER --field-id ${{ vars.PROJECT_URL_FIELD_ID }} --text $REPO_URL --project-id ${{ vars.PROJECT_ID }}
                   gh project item-edit --id $ISSUE_NUMBER --field-id ${{ vars.PROJECT_OWNER_FIELD_ID }} --text $User --project-id ${{ vars.PROJECT_ID }}
                   gh project item-edit --id $ISSUE_NUMBER --field-id ${{ vars.PROJECT_CREATED_FIELD_ID }} --date $(date +%Y-%m-%d) --project-id ${{ vars.PROJECT_ID }}
