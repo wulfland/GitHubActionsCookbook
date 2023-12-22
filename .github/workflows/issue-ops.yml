@@ -77,7 +77,7 @@ jobs:
         env: 
             REPO_OWNER: ${{ vars.ORGANIZATION }}
             REPO_NAME: ${{ needs.issue-ops.outputs.REPO_NAME }}
-            User: ${{ github.event.issue.user.login }}
+            ISSUE_USER: ${{ github.event.issue.user.login }}
             ISSUE_NUMBER: ${{ github.event.issue.number }}
         steps:
             - name: Create app token
@@ -104,7 +104,7 @@ jobs:
                   GH_TOKEN: ${{ github.token }}
                   REPO_URL: ${{ steps.create-repo.outputs.repo_url }}
               run: |
-                  gh issue comment $ISSUE_NUMBER -b "@${{ github.event.issue.user.login }}: Repository '$REPO_OWNER/$REPO_NAME' has been created successfully: $REPO_URL" --repo ${{ github.event.repository.full_name }}
+                  gh issue comment $ISSUE_NUMBER -b "@$ISSUE_USER: Repository '$REPO_OWNER/$REPO_NAME' has been created successfully: $REPO_URL" --repo ${{ github.event.repository.full_name }}
 
             - name: Update Project
               if: ${{ success() }}
@@ -118,7 +118,7 @@ jobs:
                   issue_id=$(gh project item-list $PROJECTNUMBER --owner "$PROJECTOWNER" --format json | jq -r '.items[] | select(.content.number=='$ISSUE_NUMBER') | .id') 
                   gh project item-edit --id $issue_id --field-id ${{ vars.RPOJECT_STATUS_FIELD_ID }} --single-select-option-id ${{ vars.PROJECT_REPO_CREATED_OPTION_ID }} --project-id $project_id
                   gh project item-edit --id $issue_id --field-id ${{ vars.PROJECT_URL_FIELD_ID }} --text $REPO_URL --project-id $project_id
-                  gh project item-edit --id $issue_id --field-id ${{ vars.PROJECT_OWNER_FIELD_ID }} --text $User --project-id $project_id
+                  gh project item-edit --id $issue_id --field-id ${{ vars.PROJECT_OWNER_FIELD_ID }} --text $ISSUE_USER --project-id $project_id
                   gh project item-edit --id $issue_id --field-id ${{ vars.PROJECT_CREATED_FIELD_ID }} --date $(date +%Y-%m-%d) --project-id $project_id
 
             - name: Handle Exception
@@ -126,5 +126,5 @@ jobs:
               env: 
                 GH_TOKEN: ${{ github.token }}
               run: |
-                  gh issue comment $ISSUE_NUMBER -b "@$USER: Repository '$REPO_OWNER/$REPO_NAME' creation failed. Please contact the administrator." --repo ${{ github.event.repository.full_name }}
+                  gh issue comment $ISSUE_NUMBER -b "@$ISSUE_USER: Repository '$REPO_OWNER/$REPO_NAME' creation failed. Please contact the administrator." --repo ${{ github.event.repository.full_name }}
                      
