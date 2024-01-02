@@ -53,6 +53,7 @@ jobs:
             GH_TOKEN: ${{ secrets.PROJECT_TOKEN }}
             PROJECTNUMBER: ${{ vars.PROJECT_ID }}
             PROJECTOWNER: ${{ vars.PROJECT_OWNER}}
+            ISSUE_NUMBER: ${{ inputs.ISSUE_NUMBER }}
         run: |
             project_id=$(gh project list --owner "$PROJECTOWNER" --format json | jq -r '.projects[] | select(.number=='$PROJECTNUMBER') | .id')
             issue_id=$(gh project item-list $PROJECTNUMBER --owner "$PROJECTOWNER" --format json | jq -r '.items[] | select(.content.number=='$ISSUE_NUMBER') | .id') 
