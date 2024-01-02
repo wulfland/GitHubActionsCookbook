@@ -41,9 +41,11 @@ jobs:
       - name: Notify User
         if: ${{ success() }}
         env: 
-            GH_TOKEN: ${{ github.token }}
-            ISSUE_NUMBER: ${{ inputs.ISSUE_NUMBER }}
-            ISSUE_USER: ${{ inputs.ISSUE_USER }}
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ inputs.ISSUE_NUMBER }}
+          ISSUE_USER: ${{ inputs.ISSUE_USER }}
+          REPO_NAME: ${{ inputs.REPO_NAME }}
+          REPO_OWNER: ${{ vars.REPO_OWNER }}
         run: |
             gh issue comment $ISSUE_NUMBER -b "@$ISSUE_USER: Repository '$REPO_OWNER/$REPO_NAME' has been deleted successfully." --repo ${{ github.event.repository.full_name }}
             gh issue close $ISSUE_NUMBER --repo ${{ github.event.repository.full_name }}
