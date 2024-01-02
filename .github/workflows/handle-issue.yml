@@ -36,4 +36,6 @@ jobs:
     needs: parse-issue
     with:
       REPO_NAME: ${{ needs.parse-issue.outputs.REPO_NAME }}
+      ISSUE_USER: ${{ github.event.issue.user.login }}
+      ISSUE_NUMBER: ${{ github.event.issue.number }}
     secrets: inherit

@@ -6,6 +6,14 @@ on:
         description: 'Repository name'
         required: true
         type: string
+      ISSUE_USER:
+        description: 'User who created the issue'
+        required: true
+        type: string
+      ISSUE_NUMBER:
+        description: 'Issue number'
+        required: true
+        type: number
 
 jobs:
   delete:
@@ -34,6 +42,8 @@ jobs:
         if: ${{ success() }}
         env: 
             GH_TOKEN: ${{ github.token }}
+            ISSUE_NUMBER: ${{ inputs.ISSUE_NUMBER }}
+            ISSUE_USER: ${{ inputs.ISSUE_USER }}
         run: |
             gh issue comment $ISSUE_NUMBER -b "@$ISSUE_USER: Repository '$REPO_OWNER/$REPO_NAME' has been deleted successfully." --repo ${{ github.event.repository.full_name }}
 
@@ -52,5 +62,7 @@ jobs:
         if: ${{ failure() }}
         env: 
           GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ inputs.ISSUE_NUMBER }}
+          ISSUE_USER: ${{ inputs.ISSUE_USER }}
         run: |
             gh issue comment $ISSUE_NUMBER -b "@$ISSUE_USER: Repository '$REPO_OWNER/$REPO_NAME' deletion failed. Please contact the administrator." --repo ${{ github.event.repository.full_name }}
