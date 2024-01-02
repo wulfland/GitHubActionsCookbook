@@ -105,6 +105,7 @@ jobs:
                   REPO_URL: ${{ steps.create-repo.outputs.repo_url }}
               run: |
                   gh issue comment $ISSUE_NUMBER -b "@$ISSUE_USER: Repository '$REPO_OWNER/$REPO_NAME' has been created successfully: $REPO_URL" --repo ${{ github.event.repository.full_name }}
+                  gh issue edit $ISSUE_NUMBER --remove-label repo-request --repo ${{ github.event.repository.full_name }}
 
             - name: Update Project
               if: ${{ success() }}
