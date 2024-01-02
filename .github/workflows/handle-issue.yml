@@ -31,7 +31,7 @@ jobs:
 
   repo-deletion:
     name: "Delete a repository"
-    if: github.event.label.name == 'repo-deletion'
+    if: github.event.label.name == 'delete-repo'
     uses: ./.github/workflows/delete-repo.yml
     needs: parse-issue
     with:
