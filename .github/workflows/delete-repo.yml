@@ -46,18 +46,7 @@ jobs:
             ISSUE_USER: ${{ inputs.ISSUE_USER }}
         run: |
             gh issue comment $ISSUE_NUMBER -b "@$ISSUE_USER: Repository '$REPO_OWNER/$REPO_NAME' has been deleted successfully." --repo ${{ github.event.repository.full_name }}
-
-      - name: Update Project
-        if: ${{ success() }}
-        env: 
-            GH_TOKEN: ${{ secrets.PROJECT_TOKEN }}
-            PROJECTNUMBER: ${{ vars.PROJECT_ID }}
-            PROJECTOWNER: ${{ vars.PROJECT_OWNER}}
-            ISSUE_NUMBER: ${{ inputs.ISSUE_NUMBER }}
-        run: |
-            project_id=$(gh project list --owner "$PROJECTOWNER" --format json | jq -r '.projects[] | select(.number=='$PROJECTNUMBER') | .id')
-            issue_id=$(gh project item-list $PROJECTNUMBER --owner "$PROJECTOWNER" --format json | jq -r '.items[] | select(.content.number=='$ISSUE_NUMBER') | .id') 
-            gh project item-edit --id $issue_id --field-id ${{ vars.RPOJECT_STATUS_FIELD_ID }} --single-select-option-id ${{ vars.PROJECT_REPO_DELETED_OPTION_ID }} --project-id $project_id
+            gh issue close $ISSUE_NUMBER --repo ${{ github.event.repository.full_name }}
 
       - name: Handle Exception
         if: ${{ failure() }}
