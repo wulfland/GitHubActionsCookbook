@@ -1,0 +1,60 @@
+# Delete a repository after approval
+on: 
+  workflow_call:
+    inputs:
+      REPO_NAME:
+        description: 'Repository name'
+        required: true
+        type: string
+      REPO_OWNER:
+        description: 'Repository owner'
+        required: true
+        type: string
+
+jobs:
+  delete:
+    runs-on: ubuntu-latest
+    environment: repo-cleanup
+    steps:
+      - name: Create app token
+        uses: actions/create-github-app-token@v1.6.2
+        id: get-workflow-token
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+          owner: ${{ vars.ORGANIZATION }}
+
+      - name: Delete repository
+        id: delete-repo
+        env: 
+          GH_TOKEN: ${{ steps.get-workflow-token.outputs.token }}
+          REPO_NAME: ${{ inputs.REPO_NAME }}
+          REPO_OWNER: ${{ inputs.REPO_OWNER }}
+        run: |
+            gh repo delete $REPO_OWNER/$REPO_NAME --yes
+            echo "Repositeory '$REPO_NAME' has been successully deleted."
+
+      - name: Notify User
+        if: ${{ success() }}
+        env: 
+            GH_TOKEN: ${{ github.token }}
+        run: |
+            gh issue comment $ISSUE_NUMBER -b "@$ISSUE_USER: Repository '$REPO_OWNER/$REPO_NAME' has been deleted successfully." --repo ${{ github.event.repository.full_name }}
+
+      - name: Update Project
+        if: ${{ success() }}
+        env: 
+            GH_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+            PROJECTNUMBER: ${{ vars.PROJECT_ID }}
+            PROJECTOWNER: ${{ vars.PROJECT_OWNER}}
+        run: |
+            project_id=$(gh project list --owner "$PROJECTOWNER" --format json | jq -r '.projects[] | select(.number=='$PROJECTNUMBER') | .id')
+            issue_id=$(gh project item-list $PROJECTNUMBER --owner "$PROJECTOWNER" --format json | jq -r '.items[] | select(.content.number=='$ISSUE_NUMBER') | .id') 
+            gh project item-edit --id $issue_id --field-id ${{ vars.RPOJECT_STATUS_FIELD_ID }} --single-select-option-id ${{ vars.PROJECT_REPO_DELETED_OPTION_ID }} --project-id $project_id
+
+      - name: Handle Exception
+        if: ${{ failure() }}
+        env: 
+          GH_TOKEN: ${{ github.token }}
+        run: |
+            gh issue comment $ISSUE_NUMBER -b "@$ISSUE_USER: Repository '$REPO_OWNER/$REPO_NAME' deletion failed. Please contact the administrator." --repo ${{ github.event.repository.full_name }}
