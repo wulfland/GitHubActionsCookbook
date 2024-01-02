@@ -1,0 +1,39 @@
+name: Handle Issue
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  parse-issue:
+      runs-on: ubuntu-latest
+      outputs:
+          REPO_NAME: ${{ steps.repo-request.outputs.REPO_NAME }}
+      steps:
+      - name: Issue Forms Body Parser
+        id: parse
+        uses: zentered/issue-forms-body-parser@v2.0.0
+
+      - name: Repository Request Validation
+        id: repo-request 
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+            repo_name=$(echo '${{ steps.parse.outputs.data }}' | jq -r '.name.text')
+            repo_dept=$(echo '${{ steps.parse.outputs.data }}' | jq -r '.department.text')
+            repo_full_name=$repo_dept-$repo_name
+
+            echo "REPO_NAME=$repo_full_name" >> "$GITHUB_OUTPUT"
+
+  repo-deletion:
+    name: "Delete a repository"
+    if: github.event.label.name == 'repo-deletion'
+    uses: ./.github/workflows/delete-repo.yml
+    needs: parse-issue
+    with:
+      REPO_NAME: ${{ needs.parse-issue.outputs.REPO_NAME }}
+    secrets: inherit

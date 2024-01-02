@@ -6,10 +6,6 @@ on:
         description: 'Repository name'
         required: true
         type: string
-      REPO_OWNER:
-        description: 'Repository owner'
-        required: true
-        type: string
 
 jobs:
   delete:
@@ -29,7 +25,7 @@ jobs:
         env: 
           GH_TOKEN: ${{ steps.get-workflow-token.outputs.token }}
           REPO_NAME: ${{ inputs.REPO_NAME }}
-          REPO_OWNER: ${{ inputs.REPO_OWNER }}
+          REPO_OWNER: ${{ vars.REPO_OWNER }}
         run: |
             gh repo delete $REPO_OWNER/$REPO_NAME --yes
             echo "Repositeory '$REPO_NAME' has been successully deleted."
