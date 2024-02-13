@@ -1,6 +1,7 @@
 # A first workflow to play around with the editor
 name: My First Workflow
 on:
+  pull_request:
   push:
     branches: 
       - main
