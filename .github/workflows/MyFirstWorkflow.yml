@@ -1,0 +1,54 @@
+# A first workflow to play around with the editor
+name: My First Workflow
+on:
+  push:
+    branches: 
+      - main
+  workflow_dispatch:
+
+jobs:
+  first_job:
+    name: My first job
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "Hello ${{ vars.WHO_TO_GREET }} 👋 from ${{ github.actor }}." 
+          echo "My secret is 🤫 ${{ secrets.MY_SECRET }}."
+          echo "Current branch is '${{ github.ref }}'."
+      - name: Checkout
+        uses: actions/checkout@v4.1.0
+      - run: tree
+
+  Test:
+    runs-on: ubuntu-latest
+    environment: Test
+    needs: first_job
+    steps:
+    - run: |
+        echo "Hello ${{ vars.WHO_TO_GREET }} 👋 from ${{ github.actor }}." 
+        sec=$(echo ${{ secrets.MY_SECRET }} | sed 's/./& /g')
+        echo "My secret is 🤫 '$sec'."
+      
+  Load-Test:
+    runs-on: ubuntu-latest
+    environment: Load-Test
+    needs: first_job
+    steps:
+    - run: |
+        echo "Hello ${{ vars.WHO_TO_GREET }} 👋 from ${{ github.actor }}." 
+        sec=$(echo ${{ secrets.MY_SECRET }} | sed 's/./& /g')
+        echo "My secret is 🤫 '$sec'."
+        sleep 15
+      
+  Production:
+    runs-on: ubuntu-latest
+    environment: 
+      name: Production
+      url: https://writeabout.net
+    needs: [Test, Load-Test]
+    steps:
+    - run: |
+        echo "Hello ${{ vars.WHO_TO_GREET }} 👋 from ${{ github.actor }}." 
+        sec=$(echo ${{ secrets.MY_SECRET }} | sed 's/./& /g')
+        echo "My secret is 🤫 '$sec'."
+        sleep 15
