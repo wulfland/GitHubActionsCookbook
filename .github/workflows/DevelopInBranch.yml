@@ -1,0 +1,13 @@
+# workflow to show how to develop workflows in branches
+name: Develop in a branch
+
+on: [pull_request, workflow_dispatch]
+
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "Workflow triggered in branch '${{ github.ref }}'."
+          echo "Workflow triggered by event '${{ github.event_name }}'."
+          echo "Workflow triggered by actor '${{ github.actor }}''."
