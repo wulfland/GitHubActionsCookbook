@@ -17,6 +17,7 @@ jobs:
           echo "Current branch is '${{ github.ref }}'."
       - name: Checkout
         uses: actions/checkout@v4.1.0
+      - uses: devops-actions/actionlint@v0.1.2
       - run: tree
 
   Test:

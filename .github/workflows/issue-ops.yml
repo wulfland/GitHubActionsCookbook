@@ -24,9 +24,9 @@ jobs:
           env:
             GH_TOKEN: ${{ github.token }}
           run: |
-            repo_name=$(echo '${{ steps.parse.outputs.data }}' | jq -r '.name.text')
-            repo_dept=$(echo '${{ steps.parse.outputs.data }}' | jq -r '.department.text')
-            repo_full_name=$repo_dept-$repo_name
+            repo_name=$(echo "${{ steps.parse.outputs.data }}" | jq -r '.name.text')
+            repo_dept=$(echo "${{ steps.parse.outputs.data }}" | jq -r '.department.text')
+            repo_full_name="$repo_dept-$repo_name"
 
             echo "REPO_NAME=$repo_full_name" >> "$GITHUB_OUTPUT"
 
@@ -35,7 +35,7 @@ jobs:
             exitcode=0
 
             # shall not be empty
-            if [ -z $repo_full_name ]; then
+            if [ -z "$repo_full_name" ]; then
                 message="Repository name is empty.";
                 exitcode=1;
             fi;                  
@@ -60,7 +60,7 @@ jobs:
 
             if [ $exitcode -ne 0 ]; then
                 gh issue edit "${{ github.event.issue.number }}" --remove-label repo-request --repo "${{ github.event.repository.full_name }}"
-                message=$message" Please fix the issue and try again by applying the label 'repo-request' again to the issue.";
+                message="$message Please fix the issue and try again by applying the label 'repo-request' again to the issue.";
             fi;
 
             gh issue comment "${{ github.event.issue.number }}" -b "$mention $message" --repo "${{ github.event.repository.full_name }}"
@@ -115,12 +115,12 @@ jobs:
                   PROJECTNUMBER: ${{ vars.PROJECT_ID }}
                   PROJECTOWNER: ${{ vars.PROJECT_OWNER}}
               run: |
-                  project_id=$(gh project list --owner "$PROJECTOWNER" --format json | jq -r '.projects[] | select(.number=='$PROJECTNUMBER') | .id')
-                  issue_id=$(gh project item-list "$PROJECTNUMBER" --owner "$PROJECTOWNER" --format json | jq -r '.items[] | select(.content.number=='$ISSUE_NUMBER') | .id') 
-                  gh project item-edit --id $issue_id --field-id "${{ vars.RPOJECT_STATUS_FIELD_ID }}" --single-select-option-id "${{ vars.PROJECT_REPO_CREATED_OPTION_ID }}" --project-id $project_id
-                  gh project item-edit --id $issue_id --field-id "${{ vars.PROJECT_URL_FIELD_ID }}" --text $REPO_URL --project-id $project_id
-                  gh project item-edit --id $issue_id --field-id "${{ vars.PROJECT_OWNER_FIELD_ID }}" --text $ISSUE_USER --project-id $project_id
-                  gh project item-edit --id $issue_id --field-id "${{ vars.PROJECT_CREATED_FIELD_ID }}" --date $(date +%Y-%m-%d) --project-id $project_id
+                project_id=$(gh project list --owner "$PROJECTOWNER" --format json | jq -r ".projects[] | select(.number==$PROJECTNUMBER) | .id")
+                issue_id=$(gh project item-list "$PROJECTNUMBER" --owner "$PROJECTOWNER" --format json | jq -r ".items[] | select(.content.number==$ISSUE_NUMBER) | .id") 
+                gh project item-edit --id "$issue_id" --field-id "${{ vars.RPOJECT_STATUS_FIELD_ID }}" --single-select-option-id "${{ vars.PROJECT_REPO_CREATED_OPTION_ID }}" --project-id "$project_id"
+                gh project item-edit --id "$issue_id" --field-id "${{ vars.PROJECT_URL_FIELD_ID }}" --text "$REPO_URL" --project-id "$project_id"
+                gh project item-edit --id "$issue_id" --field-id "${{ vars.PROJECT_OWNER_FIELD_ID }}" --text "$ISSUE_USER" --project-id "$project_id"
+                gh project item-edit --id "$issue_id" --field-id "${{ vars.PROJECT_CREATED_FIELD_ID }}" --date "$(date +%Y-%m-%d)" --project-id "$project_id"
 
             - name: Handle Exception
               if: ${{ failure() }}
