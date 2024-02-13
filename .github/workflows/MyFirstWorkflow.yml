@@ -1,6 +1,7 @@
 # A first workflow to play around with the editor
 name: My First Workflow
 on:
+  pull_request:
   push:
     branches: 
       - main
@@ -11,6 +12,8 @@ jobs:
     name: My first job
     runs-on: ubuntu-latest
     steps:
+      # Unsecure user input that can be used to inject script code:
+      - run: echo "${{ github.event.pull_request.title }}"
       - run: |
           echo "Hello ${{ vars.WHO_TO_GREET }} 👋 from ${{ github.actor }}." 
           echo "My secret is 🤫 ${{ secrets.MY_SECRET }}."
