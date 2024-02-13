@@ -1,6 +1,7 @@
 # A first workflow to play around with the editor
 name: My First Workflow
 on:
+  pull_request:
   push:
     branches: 
       - main
@@ -11,12 +12,14 @@ jobs:
     name: My first job
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.0
+      # Unsecure user input that can be used to inject script code:
+      - run: echo "${{ github.event.pull_request.title }}"
       - run: |
           echo "Hello ${{ vars.WHO_TO_GREET }} 👋 from ${{ github.actor }}." 
           echo "My secret is 🤫 ${{ secrets.MY_SECRET }}."
           echo "Current branch is '${{ github.ref }}'."
-      - name: Checkout
-        uses: actions/checkout@v4.1.0
       - run: tree
 
   Test:
@@ -41,6 +44,7 @@ jobs:
         sleep 15
       
   Production:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: 
       name: Production
