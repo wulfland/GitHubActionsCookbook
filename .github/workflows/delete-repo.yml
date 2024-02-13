@@ -35,7 +35,7 @@ jobs:
           REPO_NAME: ${{ inputs.REPO_NAME }}
           REPO_OWNER: ${{ vars.REPO_OWNER }}
         run: |
-            gh repo delete $REPO_OWNER/$REPO_NAME --yes
+            gh repo delete "$REPO_OWNER/$REPO_NAME" --yes
             echo "Repositeory '$REPO_NAME' has been successully deleted."
 
       - name: Notify User
@@ -47,8 +47,8 @@ jobs:
           REPO_NAME: ${{ inputs.REPO_NAME }}
           REPO_OWNER: ${{ vars.REPO_OWNER }}
         run: |
-            gh issue comment $ISSUE_NUMBER -b "@$ISSUE_USER: Repository '$REPO_OWNER/$REPO_NAME' has been deleted successfully." --repo ${{ github.event.repository.full_name }}
-            gh issue close $ISSUE_NUMBER --repo ${{ github.event.repository.full_name }}
+            gh issue comment "$ISSUE_NUMBER" -b "@$ISSUE_USER: Repository '$REPO_OWNER/$REPO_NAME' has been deleted successfully." --repo ${{ github.event.repository.full_name }}
+            gh issue close "$ISSUE_NUMBER" --repo ${{ github.event.repository.full_name }}
 
       - name: Handle Exception
         if: ${{ failure() }}
@@ -57,4 +57,4 @@ jobs:
           ISSUE_NUMBER: ${{ inputs.ISSUE_NUMBER }}
           ISSUE_USER: ${{ inputs.ISSUE_USER }}
         run: |
-            gh issue comment $ISSUE_NUMBER -b "@$ISSUE_USER: Repository '$REPO_OWNER/$REPO_NAME' deletion failed. Please contact the administrator." --repo ${{ github.event.repository.full_name }}
+            gh issue comment "$ISSUE_NUMBER" -b "@$ISSUE_USER: Repository '$REPO_OWNER/$REPO_NAME' deletion failed. Please contact the administrator." --repo ${{ github.event.repository.full_name }}
