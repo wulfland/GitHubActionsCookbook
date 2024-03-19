@@ -1,0 +1,28 @@
+# workflow to show how to develop workflows in branches
+name: Develop in a branch
+
+on: [pull_request, workflow_dispatch]
+
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - run: echo "PR title is '${{ github.event.pull_request.title }}'."
+      - run: |
+          echo "Workflow triggered in branch '${{ github.ref }}'."
+          echo "Workflow triggered by event '${{ github.event_name }}'."
+          echo "Workflow triggered by actor '${{ github.actor }}''."
+      - run: |
+          echo "::debug::This is a debug message."
+          echo "::notice::This is a notice message."
+          echo "::warning::This is a warning message."
+          echo "::error::This is an error message."
+      - run: |
+          echo "::notice file=.github/workflows/DevelopInBranch.yml,line=19,col=11,endColumn=51::There is a debug message that is not always visible!"
+          echo "::warning file=.github/workflows/DevelopInBranch.yml,line=19,endline=21::A lot of messages"
+          echo "::error title=Script Injection,file=.github/workflows/DevelopInBranch.yml,line=13,col=37,endColumn=68::Potential script injection"            
+      - uses: actions/checkout@v4.1.0
+      - uses: devops-actions/actionlint@v0.1.2
